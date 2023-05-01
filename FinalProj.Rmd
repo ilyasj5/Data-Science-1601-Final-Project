@@ -1,0 +1,563 @@
+---
+title: "FinalProj"
+output: pdf_document
+date: "2023-04-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "/Users/ilyasjaghoori/Desktop/Stat 1601/Data")
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+allMovieData <- read.csv("final_projdata.csv")
+allMovieData
+```
+
+## Subsetting the data per each movie 
+```{r}
+last_temptation_of_christ_1988 <- allMovieData[allMovieData$movie.ID == 348, ]
+the_young_lions_1958 <- allMovieData[allMovieData$movie.ID == 984, ]
+return_to_sin_city_2005 <- allMovieData[allMovieData$movie.ID == 2124, ]
+aileen_wuornos_1992 <- allMovieData[allMovieData$movie.ID == 3072, ]
+ek_aur_ek_gyarah_2003 <- allMovieData[allMovieData$movie.ID == 4132, ]
+soap_season4_1980 <- allMovieData[allMovieData$movie.ID == 4723, ]
+village_of_giants_1965 <- allMovieData[allMovieData$movie.ID == 5547, ]
+king_david_1985 <- allMovieData[allMovieData$movie.ID == 6803, ]
+sports_illustrated_swimsuit_2005 <- allMovieData[allMovieData$movie.ID == 8000, ]
+the_principal_1987 <- allMovieData[allMovieData$movie.ID == 9005, ]
+ps_2004 <- allMovieData[allMovieData$movie.ID == 9410, ]
+kung_fu_hustle_2004 <- allMovieData[allMovieData$movie.ID == 10231, ]
+they_drive_by_night_1940 <- allMovieData[allMovieData$movie.ID == 11111, ]
+the_golden_bowl_2000 <- allMovieData[allMovieData$movie.ID == 12456, ]
+dog_day_afternoon_1975 <- allMovieData[allMovieData$movie.ID == 13007, ]
+battle_royale_2001 <- allMovieData[allMovieData$movie.ID == 13567, ]
+coming_apart_1969 <- allMovieData[allMovieData$movie.ID == 14523, ]
+paint_of_origin_2002 <- allMovieData[allMovieData$movie.ID == 15203, ]
+cwalk_way_of_livin_2003 <- allMovieData[allMovieData$movie.ID == 16509, ]
+dr_jekyll_and_mr_hyde_1955 <- allMovieData[allMovieData$movie.ID == 17501, ]
+
+
+```
+
+### Used for visualizing the mean of the ratings in a bar plot 
+```{r}
+library(ggplot2)
+# List of the movies 
+movie_datasets <- list(last_temptation_of_christ_1988, the_young_lions_1958, return_to_sin_city_2005, 
+                   aileen_wuornos_1992, ek_aur_ek_gyarah_2003, soap_season4_1980, 
+                   village_of_giants_1965, king_david_1985, sports_illustrated_swimsuit_2005, 
+                   the_principal_1987, ps_2004, kung_fu_hustle_2004, they_drive_by_night_1940, 
+                   the_golden_bowl_2000, dog_day_afternoon_1975, battle_royale_2001, 
+                   coming_apart_1969, paint_of_origin_2002, cwalk_way_of_livin_2003, 
+                   dr_jekyll_and_mr_hyde_1955) 
+
+# Create a vector with movie titles
+movie_titles <- c(
+  "The Last Temptation of Christ (1988)",
+  "The Young Lions (1958)",
+  "Return to Sin City (2005)",
+  "Aileen Wuornos (1992)",
+  "Ek Aur Ek Gyarah (2003)",
+  "Soap Season 4 (1980)",
+  "Village of Giants (1965)",
+  "King David (1985)",
+  "Sports Illustrated Swimsuit (2005)",
+  "The Principal (1987)",
+  "P.S. (2004)",
+  "Kung Fu Hustle (2004)",
+  "They Drive by Night (1940)",
+  "The Golden Bowl (2000)",
+  "Dog Day Afternoon (1975)",
+  "Battle Royale (2001)",
+  "Coming Apart (1969)",
+  "Point of Origin (2002)",
+  "C-Walk: It's a Way of Livin' (2003)",
+  "Dr. Jekyll and Mr. Hyde (1955)"
+)
+
+# Initialize a vector to store the mean ratings
+mean_ratings <- numeric(length(movie_datasets))
+
+# Loop through the movie datasets and calculate the mean ratings
+for (i in seq_along(movie_datasets)) {
+  mean_ratings[i] <- mean(movie_datasets[[i]]$rating)
+}
+
+# Create a data frame with movie titles and mean ratings
+mean_ratings_table <- data.frame(
+  Movie = movie_titles,
+  MeanRating = mean_ratings
+)
+
+mean_ratings_table$MeanRating 
+
+# Create a bar plot of mean ratings for each movie
+ggplot(mean_ratings_table, aes(x = Movie, y = MeanRating, fill = Movie)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Mean Ratings for Each Movie", x = "Movie", y = "Mean Rating") +
+  theme(legend.position = "none")
+
+```
+
+### Using a line graph to visualize a trend over-time 
+```{r}
+# Load the required package
+library(ggplot2)
+
+# Create a data frame with movie titles, release years, and mean ratings
+mean_ratings_table <- data.frame(
+  Movie = factor(movie_titles, levels = movie_titles),
+  Year = c(1988, 1958, 2005, 1992, 2003, 1980, 1965, 1985, 2005, 1987, 2004, 2004, 1940, 2000, 1975, 2001, 1969, 2002, 2003, 1955),
+  MeanRating = mean_ratings,
+  stringsAsFactors = FALSE
+)
+
+# Sort the data frame by release year
+mean_ratings_table <- mean_ratings_table[order(mean_ratings_table$Year),]
+
+# Update the factor levels for the 'Movie' column based on the sorted data frame
+mean_ratings_table$Movie <- factor(mean_ratings_table$Movie, levels = mean_ratings_table$Movie)
+
+# Create a line plot of mean ratings for each movie, sorted by release year
+ggplot(mean_ratings_table, aes(x = Movie, y = MeanRating, group = 1)) +
+  geom_line() +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Mean Ratings for Each Movie (Sorted by Release Year)", x = "Movie", y = "Mean Rating") +
+  theme(legend.position = "none")
+
+```
+
+### Visualizing how many ratings each movie has 
+```{r}
+# Calculate the number of ratings for each movie
+num_ratings <- sapply(movie_datasets, function(x) nrow(x))
+
+# Create a data frame with movie titles and number of ratings
+num_ratings_table <- data.frame(
+  Movie = movie_titles,
+  NumRatings = num_ratings,
+  stringsAsFactors = FALSE
+)
+
+
+# Add the release year information to the num_ratings_table
+# Add the release year information to the num_ratings_table
+unique_movie_ids <- c(348, 984, 2124, 3072, 4132, 4723, 5547, 6803, 8000, 9005, 9410, 10231, 11111, 12456, 13007, 13567, 14523, 15203, 16509, 17501)
+num_ratings_table$Year <- allMovieData$year[match(unique_movie_ids, allMovieData$movie.ID)]
+
+
+# Unlist the Year column
+num_ratings_table$Year <- unlist(num_ratings_table$Year)
+
+# Sort the table by year
+num_ratings_table_sorted <- num_ratings_table[order(num_ratings_table$Year), ]
+
+# Update the factor levels for the 'Movie' column based on the sorted data frame
+num_ratings_table_sorted$Movie <- factor(num_ratings_table_sorted$Movie, levels = num_ratings_table_sorted$Movie)
+num_ratings_table_sorted
+# Plot the line graph
+library(ggplot2)
+ggplot(num_ratings_table_sorted, aes(x=Movie, y=NumRatings, group=1)) +
+  geom_line() +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Movie Titles (sorted by release year)", y = "Number of Ratings", title = "Number of Ratings per Movie Over Time")
+
+```
+
+### Visualizing correlation analysis between average ratings and number of ratings 
+```{r}
+# Create a data frame with movie titles, release years, and mean ratings
+mean_ratings_table <- data.frame(
+  Movie = movie_titles,
+  Year = c(1988, 1958, 2005, 1992, 2003, 1980, 1965, 1985, 2005, 1987, 2004, 2004, 1940, 2000, 1975, 2001, 1969, 2002, 2003, 1955),
+  MeanRating = mean_ratings,
+  stringsAsFactors = FALSE
+)
+
+# Recreate num_ratings_table with year values
+num_ratings_table <- data.frame(
+  Movie = movie_titles,
+  NumRatings = num_ratings,
+  Year = c(1988, 1958, 2005, 1992, 2003, 1980, 1965, 1985, 2005, 1987, 2004, 2004, 1940, 2000, 1975, 2001, 1969, 2002, 2003, 1955),
+  stringsAsFactors = FALSE
+)
+
+# Combine the mean_ratings_table and num_ratings_table
+combined_table <- data.frame(
+  Movie = mean_ratings_table$Movie,
+  Year = mean_ratings_table$Year,
+  MeanRating = mean_ratings_table$MeanRating,
+  NumRatings = num_ratings_table$NumRatings
+)
+
+# Calculate the correlation between MeanRating and NumRatings
+correlation <- cor(combined_table$MeanRating, combined_table$NumRatings)
+correlation
+
+# Create a scatter plot of MeanRating vs. NumRatings
+ggplot(combined_table, aes(x = NumRatings, y = MeanRating)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Mean Ratings vs. Number of Ratings",
+       x = "Number of Ratings",
+       y = "Mean Rating")
+
+
+```
+
+### Correlation analysis between mean rating and running time of movies 
+```{r}
+movies_df <- data.frame(
+  Movie = c("The Last Temptation of Christ (1988)", "The Young Lions (1958)", "Return to Sin City (2005)", 
+            "Aileen Wuornos (1992)", "Ek Aur Ek Gyarah (2003)", "Village of Giants (1965)", 
+            "King David (1985)", "The Principal (1987)", "P.S. (2004)", "Kung Fu Hustle (2004)", 
+            "They Drive by Night (1940)", "The Golden Bowl (2000)", "Dog Day Afternoon (1975)", 
+            "Battle Royale (2001)", "Coming Apart (1969)", "Point of Origin (2002)", 
+            "C-Walk: It's a Way of Livin' (2003)", "Dr. Jekyll and Mr. Hyde (1955)"),
+  RunningTime = c(153, 167, 90, 87, 156, 80, 114, 109, 97, 99, 93, 134, 130, 113, 110, 83, 85, 110),
+  MeanRating = c(3.405291, 3.403386, 3.089888, 3.295612, 2.606383, 2.452915, 2.974359, 3.212033, 
+                 2.867541, 3.727890, 3.582418, 2.907801, 3.884426, 4.058533, 2.795620, 2.814935, 
+                 2.932292, 2.756098)
+)
+
+correlation <- cor(movies_df$RunningTime, movies_df$MeanRating)
+correlation
+
+ggplot(movies_df, aes(x = RunningTime, y = MeanRating)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Running Time vs. Mean Rating",
+       x = "Running Time (in minutes)",
+       y = "Mean Rating")
+
+```
+
+### Number of 5's a movie recieved  
+```{r}
+# Create a vector of movie titles
+movie_titles <- c("The Last Temptation of Christ (1988)", 
+                  "The Young Lions (1958)",
+                  "Return to Sin City (2005)",
+                  "Aileen Wuornos (1992)",
+                  "Ek Aur Ek Gyarah (2003)",
+                  "Soap Season 4 (1980)",
+                  "Village of Giants (1965)",
+                  "King David (1985)",
+                  "Sports Illustrated Swimsuit (2005)",
+                  "The Principal (1987)",
+                  "P.S. (2004)",
+                  "Kung Fu Hustle (2004)",
+                  "They Drive by Night (1940)",
+                  "The Golden Bowl (2000)",
+                  "Dog Day Afternoon (1975)",
+                  "Battle Royale (2001)",
+                  "Coming Apart (1969)",
+                  "Point of Origin (2002)",
+                  "C-Walk: It's a Way of Livin' (2003)",
+                  "Dr. Jekyll and Mr. Hyde (1955)")
+
+# Create a vector of number of 5's received for each movie
+num_fives <- c(12, 9, 1, 3, 7, 0, 2, 6, 0, 8, 5, 15, 4, 2, 10, 11, 1, 2, 0, 3)
+
+# Create a data frame with movie titles and number of 5's received
+five_ratings_table <- data.frame(
+  Movie = movie_titles,
+  NumFives = num_fives,
+  stringsAsFactors = FALSE
+)
+
+# Print the five_ratings_table
+five_ratings_table
+
+```
+
+### Num5's correlation analysis with mean rating 
+```{r}
+# Create a data frame with movie titles, number of 5's, and mean ratings
+movie_data <- data.frame(
+  Movie = movie_titles,
+  NumFives = num_fives,
+  MeanRating = mean_ratings,
+  stringsAsFactors = FALSE
+)
+
+correlation <- cor(movie_data$NumFives, movie_data$MeanRating)
+correlation
+
+```
+
+### Num5's correlation analysis with num ratings 
+```{r}
+# Create a data frame with movie titles, number of fives, and number of ratings
+library(ggplot2)
+num_fives <- c(12, 9, 1, 3, 7, 0, 2, 6, 0, 8, 5, 15, 4, 2, 10, 11, 1, 2, 0, 3)
+
+num_ratings_table <- data.frame(
+  Movie = movie_titles,
+  NumRatings = num_ratings,
+  stringsAsFactors = FALSE
+)
+
+num_fives_table <- data.frame(
+  Movie = movie_titles,
+  NumFives = num_fives,
+  stringsAsFactors = FALSE
+)
+
+# Combine the num_ratings_table and num_fives_table
+combined_table <- merge(num_ratings_table, num_fives_table, by = "Movie")
+
+# Calculate the correlation between NumFives and NumRatings
+correlation <- cor(combined_table$NumFives, combined_table$NumRatings)
+correlation
+
+# Create a scatter plot of NumRatings vs. NumFives
+ggplot(combined_table, aes(x = NumRatings, y = NumFives)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Number of Ratings vs. Number of 5's",
+       x = "Number of Ratings",
+       y = "Number of 5's")
+```
+
+
+### Visualizing seasonal changes 
+```{r}
+library(ggplot2)
+# Convert the 'date' column to a date format
+allMovieData$date <- as.Date(allMovieData$date)
+
+# Extract the month from the 'date' column
+allMovieData$month <- as.numeric(format(allMovieData$date, "%m"))
+
+# Calculate the average rating for each movie and month using aggregate()
+monthly_avg_ratings <- aggregate(rating ~ movie.ID + month, allMovieData, mean)
+colnames(monthly_avg_ratings) <- c("movie.ID", "month", "avg_rating")
+
+# Create a data frame with movie titles and IDs
+movie_title_id <- data.frame(
+  Movie = movie_titles,
+  movie.ID = unique(allMovieData$movie.ID)
+)
+
+# Merge the monthly average ratings data with the movie titles
+monthly_avg_ratings_with_titles <- merge(monthly_avg_ratings, movie_title_id, by = "movie.ID")
+
+# Create a line plot to visualize the seasonality in the ratings
+ggplot(monthly_avg_ratings_with_titles, aes(x = month, y = avg_rating, color = Movie, group = Movie)) +
+  geom_line() +
+  geom_point() +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  labs(title = "Seasonality in Movie Ratings", x = "Month", y = "Average Rating") +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+### Finding the mean for the ratings in each month  
+```{r}
+# Convert the date column to a date format
+allMovieData$date <- as.Date(allMovieData$date)
+
+# Extract the year and month from the date
+allMovieData$year <- format(allMovieData$date, "%Y")
+allMovieData$month <- format(allMovieData$date, "%m")
+
+# Group the data by movie, year, and month
+monthly_data <- aggregate(rating ~ movie.ID + title + year + month, data = allMovieData, FUN = mean)
+
+# Rename the columns
+colnames(monthly_data) <- c("movie_ID", "movie_title", "year", "month", "average_rating")
+# Calculate the overall average rating for each month
+overall_monthly_avg <- aggregate(average_rating ~ month, data = monthly_data, FUN = mean)
+overall_monthly_avg
+
+# Create a bar plot of the overall average ratings for each month
+ggplot(overall_monthly_avg, aes(x = month, y = average_rating, fill = month)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Overall Average Ratings by Month", x = "Month", y = "Average Rating") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+
+```
+### Visualizing number of ratings per month 
+```{r}
+# Create a new column with the month information
+allMovieData$month_only <- format(allMovieData$date, "%m")
+
+# Count the number of ratings for each month
+monthly_ratings_count <- aggregate(rating ~ month_only, data = allMovieData, FUN = length)
+
+# Rename the columns
+colnames(monthly_ratings_count) <- c("month", "count")
+
+# Display the table
+monthly_ratings_count
+
+# Create a bar plot of the number of ratings per month
+ggplot(monthly_ratings_count, aes(x = month, y = count, fill = month)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of Ratings by Month", x = "Month", y = "Number of Ratings") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set3")
+
+
+
+
+```
+### Box Office information correlation to mean rating 
+```{r}
+# Add box office earnings to the mean_ratings_table
+mean_ratings_table$BoxOffice <- c(33.8, 4.48, 158.7, NA, 2.56, NA, NA, 5.11, NA, 19.7, 0.273, 104.9, 1.596, 5.7, 50, 30.6, NA, NA, NA, NA)
+
+# Remove rows with NA box office earnings
+mean_ratings_table_filtered <- mean_ratings_table[!is.na(mean_ratings_table$BoxOffice),]
+
+# Calculate the correlation between mean ratings and box office earnings
+cor(mean_ratings_table_filtered$MeanRating, mean_ratings_table_filtered$BoxOffice)
+
+# Load ggplot2
+library(ggplot2)
+
+# Create a scatter plot of box office earnings and mean ratings
+ggplot(mean_ratings_table_filtered, aes(x = BoxOffice, y = MeanRating)) +
+  geom_point() +
+  labs(title = "Box Office Earnings vs Mean Rating", x = "Box Office Earnings (Millions of USD)", y = "Mean Rating") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed")
+
+
+
+```
+
+### Genre and mean rating correlation analysis
+```{r}
+# Add genres to the original mean_ratings_table
+mean_ratings_table$Genre <- c("Drama", "Drama", "Action", "Documentary", "Action", "Sitcom", "Comedy", "Action", "Documentary", "Action", "Romance", "Action", "Drama", "Romance", "Comedy", "Action", "Drama", "Drama", "Drama", "Drama")
+
+# Assign numerical values to the genres
+mean_ratings_table$GenreValue <- as.numeric(factor(mean_ratings_table$Genre))
+
+mean_ratings_table
+
+# Calculate the correlation between genre values and mean ratings
+cor(mean_ratings_table$GenreValue, mean_ratings_table$MeanRating)
+
+# Add genres to the original mean_ratings_table
+mean_ratings_table$Genre <- c("Drama", "Drama", "Action", "Documentary", "Action", "Sitcom", "Comedy", "Action", "Documentary", "Action", "Romance", "Action", "Drama", "Romance", "Comedy", "Action", "Drama", "Drama", "Drama", "Drama")
+
+# Create a new data frame with genre and mean rating
+genre_mean_ratings_table <- aggregate(mean_ratings_table$MeanRating, by = list(mean_ratings_table$Genre), FUN = mean)
+
+# Assign column names to the new data frame
+colnames(genre_mean_ratings_table) <- c("Genre", "MeanRating")
+
+# Create a bar plot of mean ratings by genre
+ggplot(genre_mean_ratings_table, aes(x = Genre, y = MeanRating, fill = Genre)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Mean Ratings by Genre", x = "Genre", y = "Mean Rating")
+
+
+
+
+```
+
+### Genre and number of ratings 
+
+```{r}
+# Create a new data frame with genre and number of ratings
+genre_ratings_table <- data.frame(
+  Movie = movie_titles,
+  Genre = c("Drama", "Drama", "Action", "Documentary", "Action", "Sitcom", 
+            "Comedy", "Action", "Documentary", "Action", "Romance", "Action", 
+            "Drama", "Romance", "Comedy", "Action", "Drama", "Drama", 
+            "Drama", "Drama"),
+  NumRatings = sapply(movie_datasets, nrow)
+)
+
+# Calculate the correlation between genre and number of ratings
+correlation <- cor(as.numeric(factor(genre_ratings_table$Genre)), genre_ratings_table$NumRatings)
+correlation
+genre_ratings_table
+
+library(ggplot2)
+
+# Create a bar plot of number of ratings by genre
+ggplot(genre_ratings_table, aes(x = Genre, y = NumRatings, fill = Genre)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of Ratings by Genre", x = "Genre", y = "Number of Ratings") +
+  theme(legend.position = "none")
+
+```
+
+### Release Data impact on mean rating 
+```{r}
+Release_Date = as.Date(c("1988-08-12", "1958-04-02", "2005-03-28", "2003-05-10", "2003-03-28", "1980-11-12", "1965-10-20", "1985-03-29", "2005-02-01", "1987-09-15", "2004-10-15", "2005-04-22", "1940-08-03", "2001-04-27", "1975-09-21", "2000-12-16", "1969-10-26", "2002-06-22", "2003-07-15", "1955-07-28"))
+# Create a new column 'Month' from the 'Release_Date' column
+Release_Date <- format(Release_Date, "%m")
+
+# Create a new vector 'Month' from the 'Release_Date' vector
+Month <- format(Release_Date)
+
+# Convert the 'Month' vector to a numeric type
+Month <- as.numeric(Month)
+
+# Create a function to categorize months into seasons
+get_season <- function(Month) {
+  if (Month %in% c(3, 4, 5)) {
+    return("Spring")
+  } else if (Month %in% c(6, 7, 8)) {
+    return("Summer")
+  } else if (Month %in% c(9, 10, 11)) {
+    return("Autumn")
+  } else {
+    return("Winter")
+  }
+}
+
+# Apply the get_season function to the 'Month' vector and create a new vector 'Season'
+Season <- sapply(Month, get_season)
+
+# Display the 'Season' vector
+Season
+
+
+
+
+
+```
+
+### More Seasons 
+```{r}
+num_ratings_table$Season <- Season
+# Group the data by season and calculate the mean rating per season
+mean_ratings_by_season <- aggregate(MeanRating ~ Season, mean_ratings_table, mean)
+
+# Display the mean ratings by season
+mean_ratings_by_season
+
+# Group the data by season and calculate the number of ratings per season
+num_ratings_by_season <- aggregate(NumRatings ~ Season, num_ratings_table, sum)
+
+# Display the number of ratings by season
+num_ratings_by_season
+
+library(ggplot2)
+
+ggplot(mean_ratings_by_season, aes(x = Season, y = MeanRating, fill = Season)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Mean Movie Ratings by Season", x = "Season", y = "Mean Rating") +
+  theme(legend.position = "none")
+
+summary(num_ratings_by_season)
+
+
+
+```
